@@ -1,0 +1,62 @@
+import random
+import math
+
+def get_attacks(board):
+    attacks = 0
+    n = len(board)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if board[i] == board[j] or abs(board[i] - board[j]) == abs(i - j):
+                attacks += 1
+    return attacks
+
+def get_random_neighbor(board):
+    n = len(board)
+    neighbor = list(board)
+    col = random.randint(0, n - 1)
+    current_row = neighbor[col]
+    
+    possible_rows = [r for r in range(n) if r != current_row]
+    neighbor[col] = random.choice(possible_rows)
+    
+    return neighbor
+
+def simulated_annealing(n, max_temp=100.0, min_temp=0.0001, cooling_rate=0.99):
+
+    attempts = 0
+    
+    while True:
+        attempts += 1
+    
+        current_board = [random.randint(0, n - 1) for _ in range(n)]
+        current_attacks = get_attacks(current_board)
+        
+        if current_attacks == 0:
+            return current_board, attempts
+            
+        temp = max_temp
+        
+        while temp > min_temp:
+            if current_attacks == 0:
+                return current_board, attempts
+                
+            neighbor = get_random_neighbor(current_board)
+            neighbor_attacks = get_attacks(neighbor)
+            
+            delta_e = neighbor_attacks - current_attacks
+            
+            if delta_e < 0 or random.random() < math.exp(-delta_e / temp):
+                current_board = neighbor
+                current_attacks = neighbor_attacks
+                
+            temp *= cooling_rate
+            
+
+
+if __name__ == "__main__":
+    n = 4
+    
+    solution, attempts = simulated_annealing(n)
+    
+    print(f"Success after {attempts} attempt(s)!")
+    print(f"Solution (Column -> Row): {solution}")
