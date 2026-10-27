@@ -1,0 +1,46 @@
+import random
+
+def get_attacks(board):
+    """Count how many pairs of queens are attacking each other."""
+    attacks = 0
+    n = len(board)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if board[i] == board[j] or abs(board[i] - board[j]) == abs(i - j):
+                attacks += 1
+    return attacks
+
+def solve_n_queens(n):
+    """Hill climbing with random restarts."""
+    while True:
+        board = [random.randint(0, n - 1) for _ in range(n)]
+        
+        while True:
+            current_attacks = get_attacks(board)
+            if current_attacks == 0:
+                return board  # Success!
+            
+            best_board = list(board)
+            best_attacks = current_attacks
+            
+            for col in range(n):
+                original_row = board[col]
+                for row in range(n):
+                    if row == original_row:
+                        continue
+                    board[col] = row
+                    attacks = get_attacks(board)
+                    if attacks < best_attacks:
+                        best_attacks = attacks
+                        best_board = list(board)
+                board[col] = original_row  # Reset column
+            
+            if best_attacks >= current_attacks:
+                break
+                
+            board = best_board
+
+
+n = 4
+solution = solve_n_queens(n)
+print(f"Solution (Column -> Row): {solution}")
